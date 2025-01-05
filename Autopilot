@@ -1,1 +1,68 @@
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()  -- Wait for the character if it isn't loaded yet
+local hrp = character:WaitForChild("HumanoidRootPart")  -- Wait for the HumanoidRootPart to exist
+local head = character:WaitForChild("Head")  -- Wait for the Head part
 
+-- To store parts to move
+local parts = {}
+
+-- Collecting the parts (BlockStd and Ball) from the "Aircraft" model
+local aircraft = game.Workspace:FindFirstChild(player.Name .. " Aircraft")
+if aircraft then
+    for _, part in pairs(aircraft:GetChildren()) do
+        if part:IsA("Model") and part.Name == "BlockStd" and part.PrimaryPart and part.PrimaryPart.Color == Color3.fromRGB(0, 255, 0) then
+            print("Found part: " .. part.Name)
+            table.insert(parts, part.PrimaryPart)
+        end
+    end
+else
+    warn("Aircraft not found for player: " .. player.Name)
+end
+
+local speed = 5  -- Speed for movement
+
+-- Main loop to apply force and rotation to the parts
+while true do
+    if not game.Workspace:FindFirstChild(player.Name .. " Aircraft") then
+        warn("Aircraft model no longer exists.")
+        break
+    end
+
+    -- Target position slightly above the HumanoidRootPart
+    local targetPosition = hrp.Position + Vector3.new(0, 10, 0) + Vector3.new(math.random(-0.3, 0.3), math.random(-0.3, 0.6), math.random(-0.3, 0.3))
+
+    -- Target rotation towards the player's head
+    local targetRotation = head.CFrame
+
+    for _, part in pairs(parts) do
+        if part and part.Parent then
+            -- Apply Force for movement towards the target position
+            local direction = (targetPosition - part.Position).Unit
+            local distance = (targetPosition - part.Position).Magnitude
+
+            local force = part:FindFirstChild("BodyVelocity")
+            if not force then
+                force = Instance.new("BodyVelocity")
+                force.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                force.Parent = part
+            end
+
+            force.Velocity = direction * speed * math.clamp(distance, 0, 50) -- Prevent overshooting
+
+            -- Apply rotation using BodyGyro
+            local bodyGyro = part:FindFirstChild("BodyGyro")
+            if not bodyGyro then
+                bodyGyro = Instance.new("BodyGyro")
+                bodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+                bodyGyro.P = 300  -- Higher P for faster correction
+                bodyGyro.D = 100   -- Damping
+                bodyGyro.Parent = part
+            end
+
+            -- Smooth rotation to match the target rotation
+            bodyGyro.CFrame = targetRotation
+        end
+    end
+
+    wait(0)  -- Slight delay to prevent resource overuse
+end
