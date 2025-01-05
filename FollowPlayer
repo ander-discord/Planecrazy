@@ -30,6 +30,9 @@ local speed = 5
 local targetposition = Vector3.new(0, 0, 0)
 
 while true do
+    if not game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name .. ' Aircraft') then
+        break
+    end
     for i, part in pairs(parts) do
         local color = parts_colors[i]
         targetposition = hrp.Position + Vector3.new(0, 7, 0)
