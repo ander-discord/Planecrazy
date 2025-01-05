@@ -29,7 +29,7 @@ for i, part in pairs(game.Workspace[game.Players.LocalPlayer.Name .. ' Aircraft'
     end
 end
 
-local speed = 5
+local speed = 10
 
 while true do
     if not game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name .. ' Aircraft') then
@@ -41,6 +41,9 @@ while true do
     		color.R * 730,
     		color.G * 730,
     		color.B * -730)
+		if (targetposition - part.Position).Magnitude < 0.01 then
+			continue
+		end
         local direction = (targetposition - part.Position).Unit
         local force
         if part:FindFirstChild("BodyVelocity") then
