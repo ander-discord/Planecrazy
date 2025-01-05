@@ -1,4 +1,4 @@
-local character = game.Players.Localplayer.Character
+local character = game.Players.LocalPlayer.Character
 local hrp = character:WaitForChild("HumanoidRootPart")
 local head = character:WaitForChild("Head")
 local headPosition = head.Position + Vector3.new(0, 5, 0)
