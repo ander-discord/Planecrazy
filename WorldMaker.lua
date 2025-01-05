@@ -20,10 +20,12 @@ local DoCheck = RandomVariable(20)
 _G.DoCheck = DoCheck
 
 for i, part in pairs(game.Workspace[game.Players.LocalPlayer.Name .. ' Aircraft']:GetChildren()) do
-    if part.ClassName == "Model" and part.Name == "BlockStd" then
-        print(part.BlockStd.Color)
-        table.insert(parts_colors, part.BlockStd.Color)
-        table.insert(parts, part.PrimaryPart)
+    if part.ClassName == "Model" then
+		if part.Name == "BlockStd" or part.Name == "Ball" then
+        	print(part.BlockStd.Color)
+        	table.insert(parts_colors, part.BlockStd.Color)
+        	table.insert(parts, part.PrimaryPart)
+		end
     end
 end
 
