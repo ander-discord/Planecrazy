@@ -19,7 +19,7 @@ else
     warn("Aircraft not found for player: " .. player.Name)
 end
 
-local speed = 5  -- Speed for movement
+local speed = 3  -- Speed for movement
 
 -- Main loop to apply force and rotation to the parts
 while true do
