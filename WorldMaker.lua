@@ -1,5 +1,6 @@
 local character = game.Players.LocalPlayer.Character
 local hrp = character:WaitForChild("HumanoidRootPart")
+local hrpt = hrp.Position
 local head = character:WaitForChild("Head")
 local headPosition = head.Position + Vector3.new(0, 5, 0)
 
@@ -27,19 +28,17 @@ for i, part in pairs(game.Workspace[game.Players.LocalPlayer.Name .. ' Aircraft'
 end
 
 local speed = 5
-local targetposition = Vector3.new(0, 0, 0)
 
 while true do
     if not game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name .. ' Aircraft') then
         break
     end
     for i, part in pairs(parts) do
-        local color = parts_colors[i]
-        targetposition = hrp.Position + Vector3.new(0, 7, 0) + Vector3.new(
-            color.R * 730,
-            color.G * 730,
-            color.B * -730 
-        )
+		local color = parts_colors[i]
+		local targetposition = hrpt + Vector3.new(
+    		color.R * 730,
+    		color.G * 730,
+    		color.B * -730)
         local direction = (targetposition - part.Position).Unit
         local force
         if part:FindFirstChild("BodyVelocity") then
