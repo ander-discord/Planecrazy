@@ -1,43 +1,55 @@
 local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()  -- Wait for the character if it isn't loaded yet
-local hrp = character:WaitForChild("HumanoidRootPart")  -- Wait for the HumanoidRootPart to exist
-local head = character:WaitForChild("Head")  -- Wait for the Head part
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
 local mouse = player:GetMouse()
+local mode = 1
+local camera = workspace.CurrentCamera
 
--- To store parts to move
 local parts = {}
 
--- Collecting the parts (BlockStd and Ball) from the "Aircraft" model
-local aircraft = game.Workspace:FindFirstChild(player.Name .. " Aircraft")
+local aircraft = workspace:FindFirstChild(player.Name .. " Aircraft")
 if aircraft then
+    print("Aircraft found!")
     for _, part in pairs(aircraft:GetChildren()) do
         if part:IsA("Model") and part.Name == "BlockStd" and part.PrimaryPart and part.PrimaryPart.Color == Color3.fromRGB(0, 255, 0) then
             print("Found part: " .. part.Name)
             table.insert(parts, part.PrimaryPart)
+        else
+            print("Ignored part: " .. part.Name)
         end
     end
 else
     warn("Aircraft not found for player: " .. player.Name)
 end
 
-local speed = 3  -- Speed for movement
+local speed = 3
+local RunService = game:GetService("RunService")
 
--- Main loop to apply force and rotation to the parts
-while true do
-    if not game.Workspace:FindFirstChild(player.Name .. " Aircraft") then
+local connection
+connection = RunService.Heartbeat:Connect(function()
+    if not workspace:FindFirstChild(player.Name .. " Aircraft") then
         warn("Aircraft model no longer exists.")
-        break
+        connection:Disconnect()
+        return
     end
 
-    -- Target position slightly above the HumanoidRootPart
-    local targetPosition = hrp.Position + Vector3.new(0, 10, 0) + Vector3.new(math.random(-0.3, 0.3), math.random(-0.3, 0.6), math.random(-0.3, 0.3))
+    local targetPosition = hrp.Position
+    local targetRotation = hrp.CFrame
 
-    -- Target rotation towards the player's head
-    local targetRotation = head.CFrame
+    if mode == 1 then
+        targetPosition = hrp.Position + Vector3.new(0, 10, 0) + Vector3.new(
+            math.random(-0.3, 0.3),
+            math.random(-0.3, 0.6),
+            math.random(-0.3, 0.3)
+        )
+        targetRotation = hrp.CFrame
+    elseif mode == 2 then
+        targetPosition = mouse.Hit.Position + Vector3.new(0, 15, 0)
+        targetRotation = CFrame.lookAt(hrp.Position, targetPosition)
+    end
 
     for _, part in pairs(parts) do
         if part and part.Parent then
-            -- Apply Force for movement towards the target position
             local direction = (targetPosition - part.Position).Unit
             local distance = (targetPosition - part.Position).Magnitude
 
@@ -47,23 +59,24 @@ while true do
                 force.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
                 force.Parent = part
             end
+            force.Velocity = direction * speed * math.clamp(distance, 0, 50)
 
-            force.Velocity = direction * speed * math.clamp(distance, 0, 50) -- Prevent overshooting
-
-            -- Apply rotation using BodyGyro
             local bodyGyro = part:FindFirstChild("BodyGyro")
             if not bodyGyro then
                 bodyGyro = Instance.new("BodyGyro")
                 bodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-                bodyGyro.P = 300  -- Higher P for faster correction
-                bodyGyro.D = 100   -- Damping
+                bodyGyro.P = 300
+                bodyGyro.D = 100
                 bodyGyro.Parent = part
             end
-
-            -- Smooth rotation to match the target rotation
             bodyGyro.CFrame = targetRotation
         end
     end
+end)
 
-    wait(0)  -- Slight delay to prevent resource overuse
-end
+mouse.KeyDown:Connect(function(key)
+    if key:lower() == "m" then
+        mode = (mode == 1) and 2 or 1
+        print("Mode switched to: " .. mode)
+    end
+end)
