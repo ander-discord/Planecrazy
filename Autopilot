@@ -2,6 +2,7 @@ local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()  -- Wait for the character if it isn't loaded yet
 local hrp = character:WaitForChild("HumanoidRootPart")  -- Wait for the HumanoidRootPart to exist
 local head = character:WaitForChild("Head")  -- Wait for the Head part
+local mouse = player:GetMouse()
 
 -- To store parts to move
 local parts = {}
