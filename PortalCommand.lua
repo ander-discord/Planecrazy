@@ -1,11 +1,9 @@
 local character = game.Players.LocalPlayer.Character
 local hrp = character:WaitForChild("HumanoidRootPart")
-local hrpt = hrp.Position
 local head = character:WaitForChild("Head")
-local headPosition = head.Position + Vector3.new(0, 5, 0)
-
 local parts = {}
 local parts_colors = {}
+local hrpt = hrp.Position + hrp.CFrame.LookVector * 5
 _G.Enabled = true
 
 -- Function to generate a random variable (not used in logic but retained)
@@ -34,38 +32,49 @@ end
 
 local pi = math.pi
 local speed = 10
-local radius = 7 + pi/5
+local radius = 7 + pi / 5
 local ia = 0
 local close = false
+local open = true
+local portalangle = math.atan2(hrp.CFrame.LookVector.X, hrp.CFrame.LookVector.Z)
 
 while true do
-    -- Check if Aircraft model still exists, otherwise stop the loop
+
     if not game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name .. ' Aircraft') then
         break
     end
-	local RandomSeed = math.random(100, 999)
+    local RandomSeed = math.random(100, 999)
 
-    ia = ia + 0.05 + pi/(pi*7.5)
-	if ia > 50 then
-		close = true
-	end
-	if close then
-		speed += -0.05
-		if speed < 2 then
-			speed += -2.5
-		end
-	end
+    ia = ia + 0.05 + pi / (pi * 7.5)
+    if ia > 500 then
+        close = true
+    end
+    if close then
+        speed = speed - 0.05
+        if speed < 2 then
+            speed = 1
+        end
+    end
     for i, part in pairs(parts) do
         local color = parts_colors[i]
-        local angleOffset = ia + (color.R/1.5 * 360/15/1.8) * math.pi
+        local angleOffset = ia + (color.R / 1.5 * 360 / 15 / 1.8) * math.pi
 
-        local xOffset = math.cos(angleOffset) * radius
-        local yOffset = math.sin(angleOffset) * radius
-		local zOffset = math.sin(i * RandomSeed) / math.pi
-        local targetPosition = hrpt + Vector3.new(xOffset, yOffset + 4.5, zOffset)
+        local circlePosition = Vector3.new(
+            math.cos(angleOffset) * radius,
+            math.sin(angleOffset) * radius + 4.5,
+            math.sin(i * RandomSeed) / math.pi
+        )
+        local rotatedPosition = CFrame.Angles(0, portalangle, 0):PointToWorldSpace(circlePosition)
+        local targetPosition = hrpt + rotatedPosition
 
         if (targetPosition - part.Position).Magnitude < 0.01 then
             continue
+        end
+		if ia > 100 then
+			close = true
+		end
+        if open == false then
+            targetPosition = hrpt + Vector3.new(0, 250, 0)
         end
 
         -- Calculate direction from the part's current position to the target position
