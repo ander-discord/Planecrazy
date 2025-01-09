@@ -23,7 +23,7 @@ _G.DoCheck = DoCheck
 -- Get parts from Aircraft model and their colors
 for i, part in pairs(game.Workspace[game.Players.LocalPlayer.Name .. ' Aircraft']:GetChildren()) do
     if part.ClassName == "Model" then
-        if part.Name == "BlockStd" or part.Name == "Ball" then
+        if part.Name == "TinyBall" or part.Name == "Ball" then
             -- We extract the color values
             print(part.BlockStd.Color)
             table.insert(parts_colors, part.BlockStd.Color)
@@ -32,28 +32,37 @@ for i, part in pairs(game.Workspace[game.Players.LocalPlayer.Name .. ' Aircraft'
     end
 end
 
+local pi = math.pi
 local speed = 10
-local radius = 30  -- Radius of the circle
-local ia = 0    -- Angle variable for circular movement
+local radius = 7 + pi/5
+local ia = 0
+local close = false
 
 while true do
     -- Check if Aircraft model still exists, otherwise stop the loop
     if not game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name .. ' Aircraft') then
         break
     end
+	local RandomSeed = math.random(100, 999)
 
-    -- Increment angle for circular movement
-    ia = ia + 0.5
-
-    -- Move each part towards its corresponding target position
+    ia = ia + 0.05 + pi/(pi*7.5)
+	if ia > 50 then
+		close = true
+	end
+	if close then
+		speed += -0.05
+		if speed < 2 then
+			speed += -2.5
+		end
+	end
     for i, part in pairs(parts) do
         local color = parts_colors[i]
-        local angleOffset = ia + (color.R * 360/15/1.8) * math.pi
+        local angleOffset = ia + (color.R/1.5 * 360/15/1.8) * math.pi
 
-        -- Calculate the circular target position for the part
         local xOffset = math.cos(angleOffset) * radius
         local yOffset = math.sin(angleOffset) * radius
-        local targetPosition = hrpt + Vector3.new(xOffset, yOffset, i/15)
+		local zOffset = math.sin(i * RandomSeed) / math.pi
+        local targetPosition = hrpt + Vector3.new(xOffset, yOffset + 4.5, zOffset)
 
         if (targetPosition - part.Position).Magnitude < 0.01 then
             continue
