@@ -3,7 +3,7 @@ local hrp = character:WaitForChild("HumanoidRootPart")
 local head = character:WaitForChild("Head")
 local parts = {}
 local parts_colors = {}
-local hrpt = hrp.Position + hrp.CFrame.LookVector * 5
+local hrpt = hrp.Position + hrp.CFrame.LookVector * 10
 _G.Enabled = true
 
 -- Function to generate a random variable (not used in logic but retained)
@@ -32,7 +32,7 @@ end
 
 local pi = math.pi
 local speed = 10
-local radius = 7 + pi / 5
+local radius = 8 + pi / 5
 local ia = 0
 local close = false
 local open = true
